@@ -72,13 +72,7 @@ public class TransactionService
 
         foreach (Transaction transaction in user.Transactions)
         {
-            Console.WriteLine($"ID:          {transaction.Id}");
-            Console.WriteLine($"Type:        {transaction.Type}");
-            Console.WriteLine($"Description: {transaction.Description}");
-            Console.WriteLine($"Amount:      {transaction.Amount:C}");
-            Console.WriteLine($"Category:    {transaction.Category}");
-            Console.WriteLine($"Date:        {transaction.Date:g}");
-            Console.WriteLine("--------------------------------------");
+            PrintTransaction(transaction);
         }
     }
     
@@ -109,11 +103,72 @@ public class TransactionService
 
     public void FilterTransactions(UserAccount user)
     {
-        Console.WriteLine("Filtering will be implemented later.");
-    }
+        Console.WriteLine();
+        Console.WriteLine("===== Filter Transactions =====");
+        Console.WriteLine("1. Last 24 hours");
+        Console.WriteLine("2. Last week");
+        Console.WriteLine("3. Last month");
+        Console.WriteLine("4. Show all");
 
+        Console.Write("Choice: ");
+
+        string? choice = Console.ReadLine();
+
+        IEnumerable<Transaction> filtered = user.Transactions;
+
+        switch (choice)
+        {
+            case "1":
+                filtered = user.Transactions
+                    .Where(t => t.Date >= DateTime.Now.AddDays(-1));
+                break;
+
+            case "2":
+                filtered = user.Transactions
+                    .Where(t => t.Date >= DateTime.Now.AddDays(-7));
+                break;
+
+            case "3":
+                filtered = user.Transactions
+                    .Where(t => t.Date >= DateTime.Now.AddMonths(-1));
+                break;
+
+            case "4":
+                break;
+
+            default:
+                Console.WriteLine("Invalid option.");
+                return;
+            }
+
+            Console.WriteLine();
+
+            if (!filtered.Any())
+            {
+                Console.WriteLine("No matching transactions.");
+                return;
+            }
+
+        foreach (Transaction transaction in filtered)
+        {
+            PrintTransaction(transaction);
+        }
+    }
+    
     public void Save(UserAccount user)
     {
         Console.WriteLine("Saving will be implemented later.");
+    }
+
+    // Prints one transaction in a readable format.
+    private void PrintTransaction(Transaction transaction)
+    {
+        Console.WriteLine($"ID:          {transaction.Id}");
+        Console.WriteLine($"Type:        {transaction.Type}");
+        Console.WriteLine($"Description: {transaction.Description}");
+        Console.WriteLine($"Amount:      {transaction.Amount:C}");
+        Console.WriteLine($"Category:    {transaction.Category}");
+        Console.WriteLine($"Date:        {transaction.Date:g}");
+        Console.WriteLine("--------------------------------------");
     }
 }
