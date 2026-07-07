@@ -157,7 +157,9 @@ public class TransactionService
     
     public void Save(UserAccount user)
     {
-        Console.WriteLine("Saving will be implemented later.");
+        DataService dataService = new();
+
+        dataService.Save(user);
     }
 
     // Prints one transaction in a readable format.
