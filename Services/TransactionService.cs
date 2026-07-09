@@ -162,6 +162,124 @@ public class TransactionService
         dataService.Save(user);
     }
 
+    public void EditTransaction(UserAccount user)
+    {
+        Console.WriteLine();
+
+        if (user.Transactions.Count == 0)
+        {
+            Console.WriteLine("No transactions available.");
+            return;
+        }
+
+        // Show all transactions first.
+        ShowTransactions(user);
+
+        Console.WriteLine();
+        Console.Write("Enter transaction ID: ");
+
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Invalid ID.");
+            return;
+        }
+
+        Transaction? transaction = user.Transactions
+            .FirstOrDefault(t => t.Id == id);
+
+        if (transaction == null)
+        {
+            Console.WriteLine("Transaction not found.");
+            return;
+        }
+
+        // Can it still be edited?
+        if (transaction.Date < DateTime.Now.AddHours(-24))
+        {
+            Console.WriteLine("This transaction is older than 24 hours.");
+            return;
+        }
+
+        Console.Write("New description: ");
+        transaction.Description = Console.ReadLine() ?? transaction.Description;
+
+        Console.Write("New amount: ");
+
+        if (decimal.TryParse(Console.ReadLine(), out decimal amount))
+        {
+            transaction.Amount = amount;
+        }
+
+        Console.Write("New category: ");
+        transaction.Category = Console.ReadLine() ?? transaction.Category;
+
+        Console.WriteLine();
+        Console.WriteLine("Transaction updated!");
+    }
+
+
+    // Deletes a transaction if it is less than 24 hours old.
+    public void DeleteTransaction(UserAccount user)
+    {
+        Console.WriteLine();
+
+        // Are there any transactions?
+        if (user.Transactions.Count == 0)
+        {
+            Console.WriteLine("No transactions available.");
+            return;
+        }
+
+        // Show all transactions first.
+        ShowTransactions(user);
+
+        Console.WriteLine();
+        Console.Write("Enter transaction ID to delete: ");
+
+        // Make sure the ID is valid.
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Invalid ID.");
+            return;
+        }
+
+        // Try finding the transaction.
+        Transaction? transaction = user.Transactions
+            .FirstOrDefault(t => t.Id == id);
+
+        if (transaction == null)
+        {
+            Console.WriteLine("Transaction not found.");
+            return;
+        }
+
+        // Only allow deletion within 24 hours.
+        if (transaction.Date < DateTime.Now.AddHours(-24))
+        {
+            Console.WriteLine("This transaction is older than 24 hours and cannot be deleted.");
+            return;
+        }
+
+        Console.Write("Are you sure? (Y/N): ");
+
+        string? answer = Console.ReadLine();
+
+        if (answer?.ToUpper() == "Y")
+        {
+            user.Transactions.Remove(transaction);
+
+            Console.WriteLine();
+            Console.WriteLine("Transaction deleted successfully!");
+        }
+
+        else
+        {
+            Console.WriteLine();
+            Console.WriteLine("Deletion cancelled.");
+        }
+    }
+
+
     // Prints one transaction in a readable format.
     private void PrintTransaction(Transaction transaction)
     {

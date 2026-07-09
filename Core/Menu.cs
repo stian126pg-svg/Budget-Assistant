@@ -11,8 +11,10 @@ public class Menu
         Console.WriteLine("3. Show Transactions");
         Console.WriteLine("4. Show Summary");
         Console.WriteLine("5. Filter Transactions");
-        Console.WriteLine("6. Save");
-        Console.WriteLine("7. Exit");
+        Console.WriteLine("6. Save Data");
+        Console.WriteLine("7. Edit Transaction");
+        Console.WriteLine("8. Delete Transaction");
+        Console.WriteLine("9. Exit");
         Console.WriteLine("===============================");
 
         Console.Write("Choose an option: ");
