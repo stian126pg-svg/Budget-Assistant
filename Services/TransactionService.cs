@@ -4,6 +4,9 @@ namespace Budget_Assistant.Services;
 
 public class TransactionService
 {
+    // Handles saving user data.
+    private readonly DataService _dataService = new();
+
     // Adds a new income transaction.
     public void AddIncome(UserAccount user)
     {
@@ -16,7 +19,7 @@ public class TransactionService
         CreateTransaction(user, TransactionType.Expense);
     }
 
-    // Shows every transaction for the current user.
+    // Shows every transaction.
     public void ShowTransactions(UserAccount user)
     {
         Console.WriteLine();
@@ -35,7 +38,7 @@ public class TransactionService
         }
     }
 
-    // Shows a summary of the user's finances.
+    // Shows an overview of the user's finances.
     public void ShowSummary(UserAccount user)
     {
         decimal totalIncome = user.Transactions
@@ -59,15 +62,15 @@ public class TransactionService
         Console.WriteLine($"Current Balance  : {balance:C}");
     }
 
-    // Lets the user filter transactions by date.
+    // Filters transactions by date.
     public void FilterTransactions(UserAccount user)
     {
         Console.WriteLine();
         Console.WriteLine("===== Filter Transactions =====");
-        Console.WriteLine("1. Last 24 hours");
-        Console.WriteLine("2. Last week");
-        Console.WriteLine("3. Last month");
-        Console.WriteLine("4. Show all");
+        Console.WriteLine("1. Last 24 Hours");
+        Console.WriteLine("2. Last Week");
+        Console.WriteLine("3. Last Month");
+        Console.WriteLine("4. Show All");
 
         Console.Write("Choice: ");
 
@@ -96,7 +99,7 @@ public class TransactionService
                 break;
 
             default:
-                Console.WriteLine("Invalid option.");
+                Console.WriteLine("Invalid choice.");
                 return;
         }
 
@@ -114,15 +117,13 @@ public class TransactionService
         }
     }
 
-    // Saves the user's data.
+    // Saves the current user's data.
     public void Save(UserAccount user)
     {
-        DataService dataService = new();
-
-        dataService.Save(user);
+        _dataService.Save(user);
     }
 
-    // Allows editing of recent transactions.
+    // Allows editing of transactions younger than 24 hours.
     public void EditTransaction(UserAccount user)
     {
         Console.WriteLine();
@@ -154,28 +155,30 @@ public class TransactionService
 
         if (!CanModify(transaction))
         {
-            Console.WriteLine("This transaction is older than 24 hours.");
+            Console.WriteLine("Transaction is older than 24 hours.");
             return;
         }
 
-        Console.Write("New description: ");
+        Console.Write("New Description: ");
         transaction.Description = Console.ReadLine() ?? transaction.Description;
 
-        Console.Write("New amount: ");
+        Console.Write("New Amount: ");
 
         if (decimal.TryParse(Console.ReadLine(), out decimal amount))
         {
             transaction.Amount = amount;
         }
 
-        Console.Write("New category: ");
+        Console.Write("New Category: ");
         transaction.Category = Console.ReadLine() ?? transaction.Category;
 
+        _dataService.Save(user);
+
         Console.WriteLine();
-        Console.WriteLine("Transaction updated!");
+        Console.WriteLine("Transaction updated successfully!");
     }
 
-    // Deletes a recent transaction.
+    // Deletes transactions younger than 24 hours.
     public void DeleteTransaction(UserAccount user)
     {
         Console.WriteLine();
@@ -189,7 +192,7 @@ public class TransactionService
         ShowTransactions(user);
 
         Console.WriteLine();
-        Console.Write("Enter transaction ID to delete: ");
+        Console.Write("Enter transaction ID: ");
 
         if (!int.TryParse(Console.ReadLine(), out int id))
         {
@@ -207,7 +210,7 @@ public class TransactionService
 
         if (!CanModify(transaction))
         {
-            Console.WriteLine("This transaction is older than 24 hours.");
+            Console.WriteLine("Transaction is older than 24 hours.");
             return;
         }
 
@@ -215,22 +218,23 @@ public class TransactionService
 
         string? answer = Console.ReadLine();
 
-        if (answer?.ToUpper() == "Y")
-        {
-            user.Transactions.Remove(transaction);
-
-            Console.WriteLine();
-            Console.WriteLine("Transaction deleted!");
-        }
-        else
+        if (answer?.ToUpper() != "Y")
         {
             Console.WriteLine("Deletion cancelled.");
+            return;
         }
+
+        user.Transactions.Remove(transaction);
+
+        _dataService.Save(user);
+
+        Console.WriteLine();
+        Console.WriteLine("Transaction deleted successfully!");
     }
 
-    // ----------------------------------------------------
+    // -------------------------------------------------
     // Private Helper Methods
-    // ----------------------------------------------------
+    // -------------------------------------------------
 
     // Creates either an income or expense transaction.
     private void CreateTransaction(UserAccount user, TransactionType type)
@@ -261,17 +265,19 @@ public class TransactionService
 
         user.Transactions.Add(transaction);
 
+        _dataService.Save(user);
+
         Console.WriteLine();
         Console.WriteLine($"{type} added successfully!");
     }
 
-    // Finds a transaction by its ID.
+    // Finds a transaction using its ID.
     private Transaction? FindTransaction(UserAccount user, int id)
     {
         return user.Transactions.FirstOrDefault(t => t.Id == id);
     }
 
-    // Generates the next available transaction ID.
+    // Generates the next available ID.
     private int GetNextTransactionId(UserAccount user)
     {
         if (user.Transactions.Count == 0)
@@ -280,7 +286,7 @@ public class TransactionService
         return user.Transactions.Max(t => t.Id) + 1;
     }
 
-    // Checks if the transaction is less than 24 hours old.
+    // Checks if the transaction can still be modified.
     private bool CanModify(Transaction transaction)
     {
         return transaction.Date >= DateTime.Now.AddHours(-24);

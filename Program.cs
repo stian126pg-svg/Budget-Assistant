@@ -48,18 +48,14 @@ while (running)
             break;
 
         case "6":
-            transactionService.Save(currentUser);
-            break;
-
-        case "7":
             transactionService.EditTransaction(currentUser);
             break;
 
-        case "8":
+        case "7":
             transactionService.DeleteTransaction(currentUser);
             break;
 
-        case "9":
+        case "8":
             Console.WriteLine("Goodbye!");
             running = false;
             break;
