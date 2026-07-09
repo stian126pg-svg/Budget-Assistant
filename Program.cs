@@ -1,6 +1,7 @@
 ﻿using Budget_Assistant.Core;
 using Budget_Assistant.Models;
 using Budget_Assistant.Services;
+using Budget_Assistant.Helpers;
 
 Console.WriteLine("=================================");
 Console.WriteLine("Kodehode Budget Assistant");
@@ -64,4 +65,5 @@ while (running)
             Console.WriteLine("Invalid option.");
             break;
     }
+    ConsoleHelper.Pause();
 }
