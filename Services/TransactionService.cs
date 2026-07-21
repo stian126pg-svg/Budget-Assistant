@@ -30,7 +30,8 @@ public class TransactionService
             return;
         }
 
-        Console.WriteLine("===== Transactions =====");
+        ConsoleHelper.Header("Transactions");
+        ConsoleHelper.TransactionTableHeader();
 
         foreach (Transaction transaction in user.Transactions)
         {
@@ -292,15 +293,14 @@ public class TransactionService
         return transaction.Date >= DateTime.Now.AddHours(-24);
     }
 
-    // Prints one transaction neatly.
+    // Prints a transaction in table format.
     private void PrintTransaction(Transaction transaction)
     {
-        Console.WriteLine($"ID:          {transaction.Id}");
-        Console.WriteLine($"Type:        {transaction.Type}");
-        Console.WriteLine($"Description: {transaction.Description}");
-        Console.WriteLine($"Amount:      {transaction.Amount:C}");
-        Console.WriteLine($"Category:    {transaction.Category}");
-        Console.WriteLine($"Date:        {transaction.Date:g}");
-        Console.WriteLine("--------------------------------------");
+        Console.WriteLine(
+            $"{transaction.Id,-3}|" +
+            $" {transaction.Type,-8}|" +
+            $" {transaction.Amount,10:C} |" +
+            $" {transaction.Category,-14}|" +
+            $" {transaction.Date:dd/MM/yyyy}");
     }
 }
